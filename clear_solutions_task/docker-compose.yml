@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  mysqldb:
+    container_name: mysqldb
+    image: mysql:8.1.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: userdb
+      MYSQL_PASSWORD: user
+      MYSQL_USER: user
+
+  clear-solutions:
+    container_name: clear-solutions
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/userdb
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysqldb
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
